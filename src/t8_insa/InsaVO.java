@@ -11,6 +11,7 @@ public class InsaVO {
 	private String cbYY;
 	private String cbMM;
 	private String cbDD;
+	
 	public int getIdx() {
 		return idx;
 	}
