@@ -9,6 +9,8 @@ import java.awt.Font;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
@@ -73,7 +75,15 @@ public class InsaMain extends JFrame {
 		setVisible(true);
 // --------------------- 아래쪽은 메소드 ----------------------------------------
 
-		// 사원등록 버튼
+		// 사원등록 버튼을 키보드 엔터키로 등록시 수행
+		btnInput.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				dispose();
+				new InsaInput();
+			}
+		});
+		// 사원등록 버튼을 마우스로 클릭시 수행
 		btnInput.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//System.exit(0);
@@ -82,7 +92,7 @@ public class InsaMain extends JFrame {
 			}
 		});
 		
-		// 개별조회 버튼
+		// 개별조회 버튼 마우스 클릭시 수행
 		btnSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String name = JOptionPane.showInputDialog("검색할 성명을 입력하세요.");
@@ -96,15 +106,40 @@ public class InsaMain extends JFrame {
 				}
 			}
 		});
-		
+		// 개별조회 버튼 엔터버튼 클릭시 수행
+		btnSearch.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				String name = JOptionPane.showInputDialog("검색할 성명을 입력하세요.");
+				InsaDAO dao = new InsaDAO();
+				InsaVO vo = dao.getNameSearch(name);
+				
+				if(vo.getName() == null) JOptionPane.showMessageDialog(null, "검색한 회원이 없습니다.");
+				else {
+					dispose();
+					new InsaSearch(vo);
+				}
+				dao.connClose();
+			}
+		});
 		// 전체조회 버튼
 		btnList.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				dispose();
+				new InsaList();
 			}
 		});
 		
-		// 종료 버튼
+		// 종료 버튼 마우스 클릭시 수행
+		btnExit.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				System.exit(0);
+			}
+		});
+		// 종료 버튼 마우스 클릭시 수행
 		btnExit.addActionListener(new ActionListener() {
+			@Override	
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}

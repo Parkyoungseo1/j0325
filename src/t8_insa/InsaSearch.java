@@ -19,7 +19,7 @@ import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class InsaSearch extends JFrame {
-	private JButton btnInput, btnReset, btnClose;
+	private JButton btnUpdate, btnDelete, btnClose;
 	private JTextField txtName, txtAge;
 	private final ButtonGroup btnGroupGender = new ButtonGroup();
 	@SuppressWarnings("rawtypes")
@@ -122,29 +122,19 @@ public class InsaSearch extends JFrame {
 			dd[i] = (i+1) + "";
 		}
 		
-		// DB의 날짜형식을 콤보상자의 날짜형식과 일치시켜서 비교하기 위한 작업
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-M-d");	// 2024-03-25을 2024-3-25로 변경하기위한 준비
-		LocalDate date = LocalDate.parse(vo.getIpsail().substring(0,10),dtf);
-		String strDate = date.format(dtf);
-		
-		String[] ymds = strDate.split("-");
-		
 		cbYY = new JComboBox(yy);
 		cbYY.setFont(new Font("굴림", Font.PLAIN, 20));
 		cbYY.setBounds(303, 319, 84, 36);
-		cbYY.setSelectedItem(ymds[0]);
 		pn2.add(cbYY);
 		
 		cbMM = new JComboBox(mm);
 		cbMM.setFont(new Font("굴림", Font.PLAIN, 20));
 		cbMM.setBounds(444, 319, 72, 36);
-		cbMM.setSelectedItem(ymds[1]);
 		pn2.add(cbMM);
 		
 		cbDD = new JComboBox(dd);
 		cbDD.setFont(new Font("굴림", Font.PLAIN, 20));
 		cbDD.setBounds(573, 319, 84, 36);
-		cbDD.setSelectedItem(ymds[2]);
 		pn2.add(cbDD);
 		
 		JLabel lblNewLabel = new JLabel("년");
@@ -167,15 +157,15 @@ public class InsaSearch extends JFrame {
 		getContentPane().add(pn3);
 		pn3.setLayout(null);
 		
-		btnInput = new JButton("수정하기");
-		btnInput.setFont(new Font("굴림", Font.PLAIN, 22));
-		btnInput.setBounds(57, 10, 185, 56);
-		pn3.add(btnInput);
+		btnUpdate = new JButton("수정하기");
+		btnUpdate.setFont(new Font("굴림", Font.PLAIN, 22));
+		btnUpdate.setBounds(57, 10, 185, 56);
+		pn3.add(btnUpdate);
 		
-		btnReset = new JButton("삭제하기");
-		btnReset.setFont(new Font("굴림", Font.PLAIN, 22));
-		btnReset.setBounds(299, 10, 185, 56);
-		pn3.add(btnReset);
+		btnDelete = new JButton("삭제하기");
+		btnDelete.setFont(new Font("굴림", Font.PLAIN, 22));
+		btnDelete.setBounds(299, 10, 185, 56);
+		pn3.add(btnDelete);
 		
 		btnClose = new JButton("창 닫 기");
 		btnClose.setFont(new Font("굴림", Font.PLAIN, 22));
@@ -189,9 +179,14 @@ public class InsaSearch extends JFrame {
 		if(vo.getGender().equals("남자")) rdGenderMale.setSelected(true);
 		if(vo.getGender().equals("여자")) rdGenderFeMale.setSelected(true);
 		
-		
-		
-		
+		// DB의 날짜형식을 콤보상자의 날짜형식과 일치시켜서 비교하기 위한 작업
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-M-d");	// 2024-03-25을 2024-3-25로 변경하기위한 준비
+		LocalDate date = LocalDate.parse(vo.getIpsail().substring(0,10),dtf);
+		String strDate = date.format(dtf);
+		String[] ymds = strDate.split("-");
+		cbYY.setSelectedItem(ymds[0]);
+		cbMM.setSelectedItem(ymds[1]);
+		cbDD.setSelectedItem(ymds[2]);
 		
 		// --------------------- 위쪽은 UI ----------------------------------------
 		setLocationRelativeTo(null);	// 윈도우창을 가운데 정렬
@@ -199,21 +194,16 @@ public class InsaSearch extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	// 윈도우 종료버튼 활성화
 		setVisible(true);
 		// --------------------- 아래쪽은 메소드 ----------------------------------------
-
-		// 회원가입 버튼
-		btnInput.addActionListener(new ActionListener() {
+		
+		// 회원정보 수정버튼
+		btnUpdate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String name = txtName.getText().trim();
 				String age = txtAge.getText().trim();
 				String gender = "";
 				String ipsail = cbYY.getSelectedItem()+"-"+cbMM.getSelectedItem()+"-"+cbDD.getSelectedItem();
 				
 				// 유효성 검사
-				if(name.equals("")) {
-			    JOptionPane.showMessageDialog(null, "성명을 입력하세요");
-			    txtName.requestFocus();
-				}
-				else if(!Pattern.matches("^[0-9]+$", age)) {
+				if(!Pattern.matches("^[0-9]+$", age)) {
 					JOptionPane.showMessageDialog(null, "나이는 숫자로 입력하세요");
 					txtAge.requestFocus();
 				}
@@ -221,42 +211,40 @@ public class InsaSearch extends JFrame {
 					if(rdGenderMale.isSelected()) gender = "남자";
 					else gender = "여자";
 					
-					// 모든체크가 끝나면 DB에 새로운 회원을 가입처리한다.
-					// 회원명 중복처리
-//					vo = dao.getNameSearch(name);
-//					if(vo.getName() != null) {
-//						JOptionPane.showMessageDialog(null, "이미 가입된 회원입니다. 다시 성명을 입력해 주세요.");
-//						txtName.requestFocus();
-//					}
-//					else {
-//						// 정상적으로 자료가 입력되었다면 vo에 값을 담아서 DB에 저장한다.
-//						vo.setName(name);
-//						vo.setAge(Integer.parseInt(age));
-//						vo.setGender(gender);
-//						vo.setIpsail(ipsail);
-//						
-//						res = dao.setInsaInput(vo);
-//						
-//						if(res != 0) {
-//							JOptionPane.showMessageDialog(null, "회원에 가입되셨습니다.");
-//							dispose();
-//							new InsaMain();
-//						}
-//						else {
-//							JOptionPane.showMessageDialog(null, "회원 가입 실패~~ 다시 가입해 주세요.");
-//							txtName.requestFocus();
-//						}
-//					}
+					// 모든체크가 끝나면 DB에 새로운 회원을 정보를 수정처리한다.				
+					vo.setName(txtName.getText());
+					vo.setAge(Integer.parseInt(age));
+					vo.setGender(gender);
+					vo.setIpsail(ipsail);
+						
+					res = dao.setInsaUpdate(vo);
+						
+					if(res != 0) {
+						JOptionPane.showMessageDialog(null, "회원정보가 수정되었습니다.");
+					}
+					else {
+						JOptionPane.showMessageDialog(null, "회원 정보 수정 실패~~ ");
+					}
 				}
 			}
 		});
 		
-		// 다시입력 버튼
-		btnReset.addActionListener(new ActionListener() {
+		// 삭제 버튼
+		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				txtName.setText("");
-				txtAge.setText("");
-				txtName.requestFocus();
+				String name = txtName.getText();
+				
+				int ans = JOptionPane.showConfirmDialog(null, name + "회원을 삭제하시겠습니까?", "회우너삭제창", JOptionPane.YES_NO_OPTION);
+				if(ans == 0 ) {
+					res = dao.setInsaDelete(name);
+					if(res != 0) {
+						JOptionPane.showMessageDialog(null, name + "회원 삭제 완료!!!");
+						dispose();
+						new InsaMain();
+					}
+					else JOptionPane.showMessageDialog(null, name + "회원 삭제 실패!!!");
+				}
+				else JOptionPane.showMessageDialog(null, name + "회원 삭제 취소!!!");
 			}
 		});
 		
@@ -270,8 +258,4 @@ public class InsaSearch extends JFrame {
 		});
 		
 	}
-	
-//	public static void main(String[] args) {
-//		new InsaInput();
-//	}
 }
